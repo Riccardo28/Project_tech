@@ -1,93 +1,294 @@
-import React, { useState } from 'react';
-import { Sparkles, Zap, Building2, TrendingUp, Search } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Zap, Building2, TrendingUp, Search, Radar } from 'lucide-react';
 
 function TechNewsHub() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [aiArticles, setAiArticles] = useState([]);
+  const [hackerNewsArticles, setHackerNewsArticles] = useState([]);
+  const [experienceDevArticles, setExperienceDevArticles] = useState([]);
+  const [automationArticles, setAutomationArticles] = useState([]);
+  const [solutionArchitectArticles, setSolutionArchitectArticles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [selectedArticle, setSelectedArticle] = useState(null);
 
-  const newsItems = [
-    {
-      id: 1,
-      title: "GPT-5 Rumors: OpenAI Hints at Major Breakthrough",
-      category: "llm",
-      date: "2 hours ago",
-      source: "TechCrunch",
-      excerpt: "Industry insiders suggest the next generation of language models could arrive sooner than expected with significant improvements in reasoning capabilities."
-    },
-    {
-      id: 2,
-      title: "Zapier Unveils Advanced Canvas for No-Code Automation",
-      category: "automation",
-      date: "5 hours ago",
-      source: "VentureBeat",
-      excerpt: "The popular automation platform introduces a visual builder that allows users to create complex workflows without writing a single line of code."
-    },
-    {
-      id: 3,
-      title: "Microservices vs Monoliths: The Pendulum Swings Back",
-      category: "architecture",
-      date: "1 day ago",
-      source: "InfoQ",
-      excerpt: "Leading tech companies are reconsidering their architecture choices as maintenance costs and complexity of microservices become apparent."
-    },
-    {
-      id: 4,
-      title: "Anthropic Releases Claude 4: Enhanced Multi-Modal Capabilities",
-      category: "llm",
-      date: "3 hours ago",
-      source: "The Verge",
-      excerpt: "The latest iteration promises better understanding of images, charts, and documents with improved context handling up to 200K tokens."
-    },
-    {
-      id: 5,
-      title: "Make.com Acquires Automation Startup for $150M",
-      category: "automation",
-      date: "8 hours ago",
-      source: "Business Insider",
-      excerpt: "The acquisition signals continued consolidation in the automation tools market as demand for workflow optimization grows."
-    },
-    {
-      id: 6,
-      title: "Event-Driven Architecture Gains Momentum in Enterprise",
-      category: "architecture",
-      date: "12 hours ago",
-      source: "DZone",
-      excerpt: "More organizations are adopting event-driven patterns to build responsive, scalable systems that can handle real-time data streams."
-    },
-    {
-      id: 7,
-      title: "Google Gemini 2.0 Shows Impressive Coding Abilities",
-      category: "llm",
-      date: "6 hours ago",
-      source: "Ars Technica",
-      excerpt: "Benchmarks reveal that the latest Gemini model outperforms competitors in programming tasks and technical documentation generation."
-    },
-    {
-      id: 8,
-      title: "AI-Powered Automation Tools See 300% Growth",
-      category: "automation",
-      date: "1 day ago",
-      source: "Forbes",
-      excerpt: "Market research shows explosive growth in AI-enhanced automation platforms as businesses seek to optimize operations and reduce costs."
-    },
-    {
-      id: 9,
-      title: "Serverless Architectures Hit Mainstream Adoption",
-      category: "architecture",
-      date: "18 hours ago",
-      source: "AWS Blog",
-      excerpt: "Major enterprises report significant cost savings and improved scalability after migrating critical workloads to serverless platforms."
+  // Fetch AI articles from FastAPI RSS endpoint AI
+  useEffect(() => {
+    const fetchAi = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Fetch all three RSS feeds in parallel
+        const responses = await Promise.all([
+          fetch('http://localhost:8000/api/v1/rss/?url=https://www.reddit.com/r/ArtificialInteligence.rss&limit=20'),
+          fetch('http://localhost:8000/api/v1/rss/?url=https://www.reddit.com/r/LLMDevs.rss&limit=20'),
+          fetch('http://localhost:8000/api/v1/rss/?url=https://www.reddit.com/r/LocalLLaMA.rss&limit=20')
+        ]);
+
+        // Check if all responses are OK
+        responses.forEach(res => {
+          if (res.status !== 200) {
+            throw new Error('Failed to fetch one or more AI RSS feeds');
+          }
+        });
+
+        // Parse all JSON responses
+        const dataArrays = await Promise.all(responses.map(res => res.json()));
+
+        // Merge all articles from the three feeds
+        const allArticles = dataArrays.flatMap(data => data.articles);
+
+        // Format the articles to match the existing news item structure
+        const formattedArticles = allArticles.map((article, index) => ({
+          id: `ai_${index}`,
+          title: article.title,
+          category: 'llm',
+          date: formatTimestamp(article.published),
+          source: 'AI Communities',
+          excerpt: stripHtml(article.summary || article.description || '').substring(0, 200) + '...',
+          fullContent: stripHtml(article.content || article.description || article.summary || ''),
+          url: article.link
+        }));
+
+        setAiArticles(formattedArticles);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching AI articles:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAi();
+  }, []);
+
+  // Fetch Hacker News articles from FastAPI
+  useEffect(() => {
+    const fetchHackerNews = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('http://localhost:8000/api/v1/hacker-news/?limit=20&story_type=topstories');
+        if (response.status !== 200) {
+          throw new Error('Failed to fetch Hacker News articles');
+        }
+        const data = await response.json();
+
+        // Format the articles to match the existing news item structure
+        const formattedArticles = data.articles.map(article => ({
+          id: article.id,
+          title: article.title,
+          category: 'hacker_news',
+          date: formatTimestamp(article.time),
+          source: 'Hacker News',
+          excerpt: `Score: ${article.score} | Comments: ${article.descendants || 0}`,
+          url: article.url,
+          by: article.by
+        }));
+
+        setHackerNewsArticles(formattedArticles);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching Hacker News:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHackerNews();
+  }, []);
+
+  // Fetch Experienced Devs articles from FastAPI RSS endpoint experienced devs
+  useEffect(() => {
+    const fetchExperienceDev = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('http://localhost:8000/api/v1/rss/?url=https://www.reddit.com/r/ExperiencedDevs.rss&limit=20');
+        if (response.status !== 200) {
+          throw new Error('Failed to fetch Experienced Devs articles');
+        }
+        const data = await response.json();
+
+        // Format the articles to match the existing news item structure
+        const formattedArticles = data.articles.map((article, index) => ({
+          id: `experience_dev_${index}`,
+          title: article.title,
+          category: 'experienced_devs',
+          date: formatTimestamp(article.published),
+          source: 'Experienced Devs',
+          excerpt: stripHtml(article.summary || article.description || '').substring(0, 200) + '...',
+          fullContent: stripHtml(article.content || article.description || article.summary || ''),
+          url: article.link
+        }));
+
+        setExperienceDevArticles(formattedArticles);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching Experienced Devs:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExperienceDev();
+  }, []);
+
+  // Helper function to format Unix timestamp or ISO 8601 string
+  const formatTimestamp = (timestamp) => {
+    // Handle both Unix timestamps (numbers) and ISO strings
+    const date = typeof timestamp === 'number'
+      ? new Date(timestamp * 1000)  // Unix timestamp is in seconds
+      : new Date(timestamp);         // ISO string
+
+    const now = Date.now();
+    const diff = (now - date.getTime()) / 1000; // diff in seconds
+
+    if (diff < 3600) {
+      const minutes = Math.floor(diff / 60);
+      return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+    } else if (diff < 86400) {
+      const hours = Math.floor(diff / 3600);
+      return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+    } else {
+      const days = Math.floor(diff / 86400);
+      return `${days} day${days !== 1 ? 's' : ''} ago`;
     }
-  ];
+  };
+
+  // Helper function to strip HTML tags and clean up text
+  const stripHtml = (html) => {
+    if (!html) return '';
+
+    // Remove HTML comments and tags
+    const text = html
+      .replace(/<!--[\s\S]*?-->/g, '') // Remove HTML comments
+      .replace(/<[^>]+>/g, '')         // Remove HTML tags
+      .replace(/&nbsp;/g, ' ')         // Replace &nbsp; with space
+      .replace(/&amp;/g, '&')          // Replace &amp; with &
+      .replace(/&lt;/g, '<')           // Replace &lt; with <
+      .replace(/&gt;/g, '>')           // Replace &gt; with >
+      .replace(/&quot;/g, '"')         // Replace &quot; with "
+      .trim();
+
+    return text;
+  };
+
+  // Helper function to format article content with better readability
+  const formatArticleContent = (content) => {
+    if (!content) return '';
+
+    return content
+      // Add spacing after periods followed by capital letters (likely new sentences)
+      .replace(/\.([A-Z])/g, '.\n\n$1')
+      // Preserve double line breaks
+      .replace(/\n\n+/g, '\n\n')
+      // Add spacing before common list indicators
+      .replace(/([^\n])(\n- |\n\* |\n\d+\. )/g, '$1\n$2');
+  };
+
+  // Fetch Automation articles from FastAPI RSS endpoint Automation
+  useEffect(() => {
+    const fetchAutomation = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('http://localhost:8000/api/v1/rss/?url=https://www.reddit.com/r/automation.rss&limit=20');
+        if (response.status !== 200) {
+          throw new Error('Failed to fetch Automation articles');
+        }
+        const data = await response.json();
+
+        // Format the articles to match the existing news item structure
+        const formattedArticles = data.articles.map((article, index) => ({
+          id: `automation${index}`,
+          title: article.title,
+          category: 'automation',
+          date: formatTimestamp(article.published),
+          source: 'Automation',
+          excerpt: stripHtml(article.summary || article.description || '').substring(0, 200) + '...',
+          fullContent: stripHtml(article.content || article.description || article.summary || ''),
+          url: article.link
+        }));
+
+        setAutomationArticles(formattedArticles);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching Automation:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAutomation();
+  }, []);
+
+  
+
+  // Fetch Solution architecture articles from FastAPI RSS endpoint Solution Architect
+  useEffect(() => {
+    const fetchSolutionArchitect = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Fetch all three RSS feeds in parallel
+        const responses = await Promise.all([
+          fetch('http://localhost:8000/api/v1/rss/?url=https://www.reddit.com/r/softwarearchitecture.rss&limit=20'),
+        ]);
+
+        // Check if all responses are OK
+        responses.forEach(res => {
+          if (res.status !== 200) {
+            throw new Error('Failed to fetch one or more solution architecture RSS feeds');
+          }
+        });
+
+        // Parse all JSON responses
+        const dataArrays = await Promise.all(responses.map(res => res.json()));
+
+        // Merge all articles from the three feeds
+        const allArticles = dataArrays.flatMap(data => data.articles);
+
+        // Format the articles to match the existing news item structure
+        const formattedArticles = allArticles.map((article, index) => ({
+          id: `solution_architecture_${index}`,
+          title: article.title,
+          category: 'architecture',
+          date: formatTimestamp(article.published),
+          source: 'Architecture Communities',
+          excerpt: stripHtml(article.summary || article.description || '').substring(0, 200) + '...',
+          fullContent: stripHtml(article.content || article.description || article.summary || ''),
+          url: article.link
+        }));
+
+        setSolutionArchitectArticles(formattedArticles);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching solution architecture articles:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSolutionArchitect();
+  }, []);
+
+  const newsItems = [];
 
   const categories = [
     { id: 'all', label: 'All News', icon: TrendingUp, color: 'bg-purple-500' },
     { id: 'llm', label: 'LLM Models', icon: Sparkles, color: 'bg-blue-500' },
     { id: 'automation', label: 'Automation Tools', icon: Zap, color: 'bg-green-500' },
-    { id: 'architecture', label: 'Architecture', icon: Building2, color: 'bg-orange-500' }
+    { id: 'architecture', label: 'Architecture', icon: Building2, color: 'bg-orange-500' },
+    { id: 'hacker_news', label: 'Hacker News', icon: TrendingUp, color: 'bg-pink-500' },
+    { id: 'experienced_devs', label: 'Experienced Devs', icon: Radar, color: 'bg-cyan-500' },
   ];
 
-  const filteredNews = newsItems.filter(item => {
+  // Combine static news with Hacker News and Experienced Devs articles
+  const allNews = [...newsItems, ...aiArticles, ...hackerNewsArticles, ...experienceDevArticles, ...automationArticles, ...solutionArchitectArticles];
+
+  const filteredNews = allNews.filter(item => {
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
@@ -106,6 +307,19 @@ function TechNewsHub() {
             Your source for LLMs, automation tools, and architecture trends
           </p>
         </header>
+
+        {/* Loading and Error States */}
+        {loading && (
+          <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg text-blue-400 text-center">
+            Loading Hacker News articles...
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-center">
+            Error loading Hacker News: {error}
+          </div>
+        )}
 
         {/* Search Bar */}
         <div className="mb-8 relative">
@@ -144,11 +358,13 @@ function TechNewsHub() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredNews.map(item => {
             const category = categories.find(c => c.id === item.category);
+            if (!category) return null; // Skip if category not found
             const Icon = category.icon;
-            
+
             return (
               <article
                 key={item.id}
+                onClick={() => setSelectedArticle(item)}
                 className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6 hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all cursor-pointer group"
               >
                 <div className="flex items-start justify-between mb-3">
@@ -182,6 +398,52 @@ function TechNewsHub() {
         {filteredNews.length === 0 && (
           <div className="text-center py-20">
             <p className="text-slate-400 text-lg">No news found matching your criteria</p>
+          </div>
+        )}
+
+        {/* Article Modal */}
+        {selectedArticle && (
+          <div
+            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+            onClick={() => setSelectedArticle(null)}
+          >
+            <div
+              className="bg-slate-800 rounded-xl max-w-3xl w-full max-h-[80vh] overflow-y-auto p-6 border border-slate-700"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-2xl font-bold text-white pr-8">{selectedArticle.title}</h2>
+                <button
+                  onClick={() => setSelectedArticle(null)}
+                  className="text-slate-400 hover:text-white text-2xl leading-none"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="flex items-center gap-4 text-sm text-slate-400 mb-6 pb-4 border-b border-slate-700">
+                <span>{selectedArticle.source}</span>
+                <span>•</span>
+                <span>{selectedArticle.date}</span>
+              </div>
+
+              <div className="text-slate-300 mb-6 prose prose-invert max-w-none">
+                <div className="whitespace-pre-line leading-relaxed">
+                  {formatArticleContent(selectedArticle.fullContent || selectedArticle.excerpt)}
+                </div>
+              </div>
+
+              {selectedArticle.url && (
+                <a
+                  href={selectedArticle.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                >
+                  View Original →
+                </a>
+              )}
+            </div>
           </div>
         )}
       </div>
