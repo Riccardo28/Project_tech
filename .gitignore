@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-package-lock.json
 
 # Production build
 dist/
@@ -47,6 +46,12 @@ backend/htmlcov/
 backend/*.egg-info/
 backend/dist/
 backend/build/
+api/__pycache__/
+*.pyc
+__pycache__/
+
+# Vercel
+.vercel
 
 # Misc
 .cache/
