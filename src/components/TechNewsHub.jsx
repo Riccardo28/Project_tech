@@ -27,7 +27,7 @@ function TechNewsHub() {
             'Accept': 'application/json',
           },
           mode: 'cors',
-          credentials: 'same-origin'
+          credentials: 'omit'
         };
 
         const responses = await Promise.all([
@@ -85,7 +85,7 @@ function TechNewsHub() {
             'Accept': 'application/json',
           },
           mode: 'cors',
-          credentials: 'same-origin'
+          credentials: 'omit'
         };
         const response = await fetch(`${API_ENDPOINTS.hackerNews}?limit=20&story_type=topstories`, fetchOptions);
         if (response.status !== 200) {
@@ -129,7 +129,7 @@ function TechNewsHub() {
             'Accept': 'application/json',
           },
           mode: 'cors',
-          credentials: 'same-origin'
+          credentials: 'omit'
         };
         const response = await fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/ExperiencedDevs.rss&limit=20`, fetchOptions);
         if (response.status !== 200) {
@@ -226,7 +226,7 @@ function TechNewsHub() {
             'Accept': 'application/json',
           },
           mode: 'cors',
-          credentials: 'same-origin'
+          credentials: 'omit'
         };
         const response = await fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/automation.rss&limit=20`, fetchOptions);
         if (response.status !== 200) {
@@ -273,7 +273,7 @@ function TechNewsHub() {
             'Accept': 'application/json',
           },
           mode: 'cors',
-          credentials: 'same-origin'
+          credentials: 'omit'
         };
 
         const responses = await Promise.all([
