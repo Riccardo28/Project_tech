@@ -21,10 +21,19 @@ function TechNewsHub() {
       setError(null);
       try {
         // Fetch all three RSS feeds in parallel
+        const fetchOptions = {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+          mode: 'cors',
+          credentials: 'same-origin'
+        };
+
         const responses = await Promise.all([
-          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/ArtificialInteligence.rss&limit=20`),
-          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/LLMDevs.rss&limit=20`),
-          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/LocalLLaMA.rss&limit=20`)
+          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/ArtificialInteligence.rss&limit=20`, fetchOptions),
+          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/LLMDevs.rss&limit=20`, fetchOptions),
+          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/LocalLLaMA.rss&limit=20`, fetchOptions)
         ]);
 
         // Check if all responses are OK
@@ -70,7 +79,15 @@ function TechNewsHub() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${API_ENDPOINTS.hackerNews}?limit=20&story_type=topstories`);
+        const fetchOptions = {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+          mode: 'cors',
+          credentials: 'same-origin'
+        };
+        const response = await fetch(`${API_ENDPOINTS.hackerNews}?limit=20&story_type=topstories`, fetchOptions);
         if (response.status !== 200) {
           throw new Error('Failed to fetch Hacker News articles');
         }
@@ -106,7 +123,15 @@ function TechNewsHub() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/ExperiencedDevs.rss&limit=20`);
+        const fetchOptions = {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+          mode: 'cors',
+          credentials: 'same-origin'
+        };
+        const response = await fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/ExperiencedDevs.rss&limit=20`, fetchOptions);
         if (response.status !== 200) {
           throw new Error('Failed to fetch Experienced Devs articles');
         }
@@ -195,7 +220,15 @@ function TechNewsHub() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/automation.rss&limit=20`);
+        const fetchOptions = {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+          mode: 'cors',
+          credentials: 'same-origin'
+        };
+        const response = await fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/automation.rss&limit=20`, fetchOptions);
         if (response.status !== 200) {
           throw new Error('Failed to fetch Automation articles');
         }
@@ -234,10 +267,19 @@ function TechNewsHub() {
       setError(null);
       try {
         // Fetch architecture-related RSS feeds in parallel
+        const fetchOptions = {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+          mode: 'cors',
+          credentials: 'same-origin'
+        };
+
         const responses = await Promise.all([
-          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/softwarearchitecture.rss&limit=20`),
-          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/aws.rss&limit=20`),
-          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/devops.rss&limit=20`)
+          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/softwarearchitecture.rss&limit=20`, fetchOptions),
+          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/aws.rss&limit=20`, fetchOptions),
+          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/devops.rss&limit=20`, fetchOptions)
         ]);
 
         // Check if all responses are OK

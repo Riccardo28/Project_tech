@@ -12,13 +12,13 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
 
     # CORS settings
+    # Note: Safari/iOS don't support wildcard origins, so we list them explicitly
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:5173",  # Vite default port
         "http://localhost:8000",
-        "https://*.vercel.app",  # All Vercel preview deployments
-        "https://project-tech-gto4pr0wy-rbellini.vercel.app",  # Current Vercel deployment
-        "https://project-tech-chi.vercel.app"
+        "https://project-tech-chi.vercel.app",  # Production deployment
+        "https://project-tech-gto4pr0wy-rbellini.vercel.app",  # Preview deployment
     ]
 
     # Security
