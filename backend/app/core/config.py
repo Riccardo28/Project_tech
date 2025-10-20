@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from typing import List
+import os
 
 
 class Settings(BaseSettings):
@@ -13,6 +14,7 @@ class Settings(BaseSettings):
 
     # CORS settings
     # Note: Safari/iOS don't support wildcard origins, so we list them explicitly
+    # Can be overridden via ALLOWED_ORIGINS environment variable (comma-separated)
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:5173",  # Vite default port
@@ -20,6 +22,14 @@ class Settings(BaseSettings):
         "https://project-tech-chi.vercel.app",  # Production deployment
         "https://project-tech-gto4pr0wy-rbellini.vercel.app",  # Preview deployment
     ]
+
+    @property
+    def cors_origins(self) -> List[str]:
+        """Get CORS origins, supporting environment variable override"""
+        env_origins = os.getenv("ALLOWED_ORIGINS")
+        if env_origins:
+            return [origin.strip() for origin in env_origins.split(",")]
+        return self.ALLOWED_ORIGINS
 
     # Security
     SECRET_KEY: str = "your-secret-key-here-change-in-production"
