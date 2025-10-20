@@ -21,17 +21,17 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
         try:
-            # Route handling
-            if path == '/api' or path == '/api/':
+            # Route handling - Vercel strips /api prefix
+            if path == '/' or path == '':
                 response = {"message": "Tech News Hub API", "status": "online"}
-            elif path == '/api/health':
+            elif path == '/health':
                 response = {"status": "healthy"}
-            elif path.startswith('/api/v1/hacker-news'):
+            elif path.startswith('/v1/hacker-news'):
                 response = asyncio.run(self.get_hacker_news(query_params))
-            elif path.startswith('/api/v1/rss'):
+            elif path.startswith('/v1/rss'):
                 response = asyncio.run(self.get_rss_feed(query_params))
             else:
-                response = {"error": "Not found"}
+                response = {"error": "Not found", "path": path}
 
             self.wfile.write(json.dumps(response).encode())
         except Exception as e:
