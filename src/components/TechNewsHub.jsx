@@ -118,15 +118,7 @@ function TechNewsHub() {
       setLoading(true);
       setError(null);
       try {
-        const fetchOptions = {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-          },
-          mode: 'cors',
-          credentials: 'omit'
-        };
-        const response = await fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/ExperiencedDevs.rss&limit=20`, fetchOptions);
+        const response = await fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/ExperiencedDevs.rss&limit=20`);
         if (response.status !== 200) {
           throw new Error('Failed to fetch Experienced Devs articles');
         }
