@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Zap, Building2, TrendingUp, Search, Radar } from 'lucide-react';
+import { API_ENDPOINTS } from '../config/api';
 
 function TechNewsHub() {
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -21,9 +22,9 @@ function TechNewsHub() {
       try {
         // Fetch all three RSS feeds in parallel
         const responses = await Promise.all([
-          fetch('http://localhost:8000/api/v1/rss/?url=https://www.reddit.com/r/ArtificialInteligence.rss&limit=20'),
-          fetch('http://localhost:8000/api/v1/rss/?url=https://www.reddit.com/r/LLMDevs.rss&limit=20'),
-          fetch('http://localhost:8000/api/v1/rss/?url=https://www.reddit.com/r/LocalLLaMA.rss&limit=20')
+          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/ArtificialInteligence.rss&limit=20`),
+          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/LLMDevs.rss&limit=20`),
+          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/LocalLLaMA.rss&limit=20`)
         ]);
 
         // Check if all responses are OK
@@ -69,7 +70,7 @@ function TechNewsHub() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://localhost:8000/api/v1/hacker-news/?limit=20&story_type=topstories');
+        const response = await fetch(`${API_ENDPOINTS.hackerNews}?limit=20&story_type=topstories`);
         if (response.status !== 200) {
           throw new Error('Failed to fetch Hacker News articles');
         }
@@ -105,7 +106,7 @@ function TechNewsHub() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://localhost:8000/api/v1/rss/?url=https://www.reddit.com/r/ExperiencedDevs.rss&limit=20');
+        const response = await fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/ExperiencedDevs.rss&limit=20`);
         if (response.status !== 200) {
           throw new Error('Failed to fetch Experienced Devs articles');
         }
@@ -194,7 +195,7 @@ function TechNewsHub() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://localhost:8000/api/v1/rss/?url=https://www.reddit.com/r/automation.rss&limit=20');
+        const response = await fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/automation.rss&limit=20`);
         if (response.status !== 200) {
           throw new Error('Failed to fetch Automation articles');
         }
@@ -232,9 +233,11 @@ function TechNewsHub() {
       setLoading(true);
       setError(null);
       try {
-        // Fetch all three RSS feeds in parallel
+        // Fetch architecture-related RSS feeds in parallel
         const responses = await Promise.all([
-          fetch('http://localhost:8000/api/v1/rss/?url=https://www.reddit.com/r/softwarearchitecture.rss&limit=20'),
+          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/softwarearchitecture.rss&limit=20`),
+          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/aws.rss&limit=20`),
+          fetch(`${API_ENDPOINTS.rss}?url=https://www.reddit.com/r/devops.rss&limit=20`)
         ]);
 
         // Check if all responses are OK
