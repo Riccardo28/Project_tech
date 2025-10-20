@@ -18,6 +18,7 @@ class Settings(BaseSettings):
         "http://localhost:8000",
         "https://*.vercel.app",  # All Vercel preview deployments
         "https://project-tech-gto4pr0wy-rbellini.vercel.app",  # Current Vercel deployment
+        "https://project-tech-chi.vercel.app"
     ]
 
     # Security
