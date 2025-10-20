@@ -1,63 +1,112 @@
 # Tech News Hub
 
-A modern, responsive web application for aggregating technology news including LLM models, automation tools, and architecture trends.
+A modern, full-stack web application for aggregating technology news from Hacker News, Reddit communities (r/ExperiencedDevs, r/ArtificialIntelligence, r/LLMDevs, r/LocalLLaMA, r/automation, and architecture subreddits), and other tech sources.
 
-![Tech News Hub](https://img.shields.io/badge/React-18.x-blue.svg)
+![Tech News Hub](https://img.shields.io/badge/React-18.x-blue.svg) ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green.svg) ![Python](https://img.shields.io/badge/Python-3.9+-yellow.svg)
 
 ## Features
 
 - 🔍 **Search Functionality** - Search through news articles by title or content
-- 🏷️ **Category Filtering** - Filter by LLM Models, Automation Tools, Architecture, or All
+- 🏷️ **Category Filtering** - Filter by LLM Models, Automation Tools, Architecture, Hacker News, or Experienced Devs
+- 📰 **Real-time News** - Fetches live data from Hacker News API and Reddit RSS feeds
+- 💬 **Article Modal** - Click articles to view full content in a beautiful modal popup
 - 🎨 **Modern Dark Theme** - Eye-friendly design with gradient accents
 - 📱 **Fully Responsive** - Works seamlessly on desktop, tablet, and mobile
 - ⚡ **Interactive UI** - Smooth transitions and hover effects
 
-## Screenshots
-
-*Add screenshots of your application here*
-
 ## Tech Stack
 
-- **React** - Frontend framework
+### Frontend
+- **React 18** - Frontend framework
 - **Lucide React** - Icon library
 - **Tailwind CSS** - Styling
-- **Vite** - Build tool (recommended)
+- **Vite** - Build tool
+
+### Backend
+- **FastAPI** - High-performance Python web framework
+- **Uvicorn** - ASGI server
+- **httpx** - Async HTTP client for API calls
+- **feedparser** - RSS feed parsing
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js (v16 or higher)
+- Python 3.9 or higher
 - npm or yarn
+- pip (Python package manager)
 
 ### Installation
 
 1. Clone the repository
 ```bash
 git clone https://github.com/yourusername/tech-news-hub.git
-cd tech-news-hub
+cd Project_tech
 ```
 
-2. Install dependencies
+2. Install frontend dependencies
 ```bash
 npm install
 ```
 
-3. Start the development server
+3. Install backend dependencies
+```bash
+npm run backend:install
+# Or manually:
+cd backend && pip install -r requirements.txt
+```
+
+4. (Optional) Configure environment variables
+```bash
+cd backend
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+### Running the Application
+
+**Start both frontend and backend with one command:**
 ```bash
 npm run dev
 ```
 
-4. Open your browser and visit `http://localhost:5173`
+This will start:
+- Frontend (React + Vite) on `http://localhost:5173`
+- Backend (FastAPI) on `http://localhost:8000`
+
+**Or run them separately:**
+
+Frontend only:
+```bash
+npm run dev:frontend
+```
+
+Backend only:
+```bash
+npm run dev:backend
+```
+
+5. Open your browser and visit `http://localhost:5173`
 
 ## Project Structure
 
 ```
-tech-news-hub/
-├── public/
-├── src/
+Project_tech/
+├── backend/                  # FastAPI backend
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── routes/      # API endpoints
+│   │   ├── core/            # Configuration
+│   │   ├── models/          # Data models
+│   │   ├── schemas/         # Pydantic schemas
+│   │   └── services/        # Business logic
+│   ├── main.py              # FastAPI entry point
+│   ├── requirements.txt     # Python dependencies
+│   └── .env.example         # Environment variables template
+├── src/                      # React frontend
 │   ├── components/
-│   │   └── TechNewsHub.jsx
+│   │   └── TechNewsHub.jsx  # Main component
 │   ├── App.jsx
 │   ├── index.css
 │   └── main.jsx
@@ -68,22 +117,18 @@ tech-news-hub/
 └── README.md
 ```
 
-## Usage
+## API Endpoints
 
-Currently, the application displays mock news data. To connect to real news sources:
+The backend provides the following REST API endpoints:
 
-1. **Add a Backend API** - Create an Express/Node.js backend
-2. **Integrate News APIs** - Use services like NewsAPI, RSS feeds, or web scraping
-3. **Update the Component** - Replace mock data with API calls using `fetch` or `axios`
-
-### Example API Integration
-
-```javascript
-   fetch('/api/news')
-    .then(res => res.json())
-    .then(data => setNewsItems(data));
-}, []);
-```
+- `GET /` - API welcome message
+- `GET /health` - Health check endpoint
+- `GET /api/v1/hacker-news/` - Fetch Hacker News articles
+  - Query params: `limit` (default: 20), `story_type` (topstories, newstories, beststories)
+- `GET /api/v1/rss/` - Fetch RSS feed articles
+  - Query params: `url` (RSS feed URL), `limit` (default: 20)
+- `GET /docs` - Interactive API documentation (Swagger UI)
+- `GET /redoc` - Alternative API documentation (ReDoc)
 
 ## Future Enhancements
 
