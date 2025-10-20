@@ -13,6 +13,9 @@ httpx==0.27.2
 # RSS feed parsing
 feedparser==6.0.11
 
+# Serverless adapter for Vercel
+mangum==0.17.0
+
 # CORS middleware (included with FastAPI)
 # Optional: Database support (uncomment when needed)
 # sqlalchemy==2.0.35
