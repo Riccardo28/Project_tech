@@ -79,19 +79,23 @@ function TechNewsHub() {
       setLoading(true);
       setError(null);
       try {
-        const fetchOptions = {
+        const url = `${API_ENDPOINTS.hackerNews}?limit=20&story_type=topstories`;
+        console.log('Fetching Hacker News from:', url);
+
+        const response = await fetch(url, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
-          },
-          mode: 'cors',
-          credentials: 'omit'
-        };
-        const response = await fetch(`${API_ENDPOINTS.hackerNews}?limit=20&story_type=topstories`, fetchOptions);
-        if (response.status !== 200) {
-          throw new Error('Failed to fetch Hacker News articles');
+          }
+        });
+
+        console.log('Hacker News response status:', response.status);
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch Hacker News articles: ${response.status} ${response.statusText}`);
         }
         const data = await response.json();
+        console.log('Hacker News data received:', data.total, 'articles');
 
         // Format the articles to match the existing news item structure
         const formattedArticles = data.articles.map(article => ({
