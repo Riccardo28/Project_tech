@@ -16,6 +16,8 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://localhost:5173",  # Vite default port
         "http://localhost:8000",
+        "https://*.vercel.app",  # All Vercel preview deployments
+        "https://project-tech-gto4pr0wy-rbellini.vercel.app",  # Current Vercel deployment
     ]
 
     # Security
