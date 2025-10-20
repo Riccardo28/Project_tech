@@ -154,5 +154,14 @@ async def get_rss_feed(
         return RSSFeedResponse(total=0, articles=[])
 
 # Vercel serverless handler
-from mangum import Mangum
-handler = Mangum(app, lifespan="off")
+try:
+    from mangum import Mangum
+    handler = Mangum(app, lifespan="off")
+except Exception as e:
+    print(f"Error creating Mangum handler: {e}")
+    # Fallback handler for debugging
+    def handler(event, context):
+        return {
+            "statusCode": 500,
+            "body": f"Handler initialization error: {str(e)}"
+        }
